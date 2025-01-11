@@ -2,12 +2,13 @@ import React from 'react'
 import RegisterForm from '../../component/RegisterForm/RegisterForm'
 
 
-function Register() {
+const Register:React.FC = () => {
   return (
     <div>
-      <RegisterForm/>
+        <RegisterForm/>
     </div>
   )
 }
+
 
 export default Register

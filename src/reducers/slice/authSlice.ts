@@ -47,7 +47,7 @@ const userSlice = createSlice({
         .addCase(registerUser.pending,(state)=>{
             state.isLoading=true
         })
-        .addCase(registerUser.fulfilled,(state,action)=>{
+        .addCase(registerUser.fulfilled,(state)=>{
             state.isLoading=false
             state.isSucess=true
             state.message=""
@@ -67,7 +67,7 @@ const userSlice = createSlice({
             state.isSucess=true
             state.user= state.user={...action.payload.user}
         })
-        .addCase(userLogin.rejected,(state,action)=>{
+        .addCase(userLogin.rejected,(state)=>{
             state.isError=true
             state.isSucess=false
         })
@@ -79,7 +79,7 @@ const userSlice = createSlice({
             state.isSucess=true
             state.user= state.user={...action.payload.user}
         })
-        .addCase(kycSubmits.rejected,(state,action)=>{
+        .addCase(kycSubmits.rejected,(state,)=>{
             state.isError=true
             state.isSucess=false
         })
@@ -100,7 +100,7 @@ const userSlice = createSlice({
             state.isLoading = false;
             state.users=action.payload.data
         })
-        .addCase(kycsucess.rejected, (state,action) => { 
+        .addCase(kycsucess.rejected, (state) => { 
             state.isError = true;
     
         })
