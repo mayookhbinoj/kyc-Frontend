@@ -129,7 +129,7 @@ const LoginForm: React.FC = () => {
         </form>
         <p className="text-center text-sm text-gray-600">
           Don’t have an account?{' '}
-          <a href="/register" className="text-indigo-600 hover:text-indigo-700 font-semibold">
+          <a href="/Register" className="text-indigo-600 hover:text-indigo-700 font-semibold">
             Sign up
           </a>
         </p>
