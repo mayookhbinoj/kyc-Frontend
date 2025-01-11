@@ -1,120 +1,116 @@
-import React, { useState } from 'react';
-import InputField from '../InputField/InputField';
-import Button from '../Button/Button';
-import { useAppDispatch } from '../../store/Configure';
-import { useNavigate } from 'react-router-dom';
-import { reset } from '../../reducers/slice/authSlice';
-import { kycFormData } from '../../utils/validationSchema';
-import { z } from 'zod';
-import { kycSubmits } from '../../actions/userAction';
-import { useSelector } from 'react-redux';
-import { userState } from '../../Interfaces/slice';
-import apiserviceMethood from '../../service.ts/UserService';
+import React, { useState } from "react";
+import InputField from "../InputField/InputField";
+import Button from "../Button/Button";
+import { useAppDispatch } from "../../store/Configure";
+import { useNavigate } from "react-router-dom";
+import { reset } from "../../reducers/slice/authSlice";
+import { kycSubmits } from "../../actions/userAction";
+import { useSelector } from "react-redux";
+import { userState } from "../../Interfaces/slice";
+import apiserviceMethood from "../../service.ts/UserService";
 
 const Home: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { isKycSubmit } = useSelector((state: { user: userState }) => ({
-    isKycSubmit: state.user.user?.isKycSubmit, 
+    isKycSubmit: state.user.user?.isKycSubmit,
   }));
   const [formData, setFormData] = useState({
-    fullName: '',
+    fullName: "",
     idNumber: "",
-    aadhaarName: '',
+    aadhaarName: "",
     aadhaar: null as File | null,
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [showForm, setShowForm] = useState<boolean>(false);
- 
 
-  const validateInput = (name: string, value: string | number) => {
-    try {
-      const stringValue = value.toString();  
-      kycFormData.pick({ [name]:true }).parse({ [name]: stringValue });
-      
-      setErrors((prevErrors) => ({
-        ...prevErrors,
-        [name]: '',  
-      }));
-    } catch (err) {
-      if (err instanceof z.ZodError) {
-        const errorMessage = err.errors[0].message;
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          [name]: errorMessage,
-        }));
-      }
+  const validateInput = (name: string, value: string | File | null): string => {
+    switch (name) {
+      case "fullName":
+        if (!value || typeof value !== "string" || value.trim().length < 6) {
+          return "Full name must be at least 6 characters.";
+        }
+        break;
+      case "idNumber":
+        if (!value || typeof value !== "string" || value.length !== 16) {
+          return "ID Number must be exactly 16 digits.";
+        }
+        if (!/^\d{16}$/.test(value)) {
+          return "ID Number must contain only numbers.";
+        }
+        break;
+      case "aadhaarName":
+        if (!value || typeof value !== "string" || value.trim().length < 6) {
+          return "Aadhaar name must be at least 6 characters.";
+        }
+        break;
+      case "aadhaar":
+        if (value instanceof File) {
+          const validExtensions = ["image/jpeg", "image/png", "image/jpg"];
+          const maxSize = 2 * 1024 * 1024; 
+          if (!validExtensions.includes(value.type)) {
+            return "Invalid file type. Only JPG and PNG images are allowed.";
+          }
+          if (value.size > maxSize) {
+            return "File size exceeds 2MB.";
+          }
+        }
+        break;
+      default:
+        return "";
     }
+    return "";
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    
-  
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
-   validateInput(name, value); 
-
+    const errorMessage = validateInput(name, value);
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: errorMessage,
+    }));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      const validExtensions = ['image/jpeg', 'image/png', 'image/jpg']; 
-      const maxSize = 2 * 1024 * 1024; 
-      if (!validExtensions.includes(file.type)) {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          aadhaar: 'Invalid file type. Only JPG and PNG images are allowed.',
-        }));
-        return;
-      }
-  
-      if (file.size > maxSize) {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          aadhaar: 'File size exceeds 2MB.',
-        }));
-        return;
-      }
-  
+      const errorMessage = validateInput("aadhaar", file);
       setErrors((prevErrors) => ({
         ...prevErrors,
-        aadhaar: '', 
+        aadhaar: errorMessage,
       }));
-  
-      setFormData((prev) => ({
-        ...prev,
-        aadhaar: file,
-      }));
+      if (!errorMessage) {
+        setFormData((prev) => ({
+          ...prev,
+          aadhaar: file,
+        }));
+      }
     }
   };
-  
-  
 
-  const handleSubmit =async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const newErrors: { [key: string]: string } = {};
     Object.keys(formData).forEach((field) => {
-      validateInput(field, formData[field] as string);
-    })
+      const errorMessage = validateInput(field, formData[field as keyof typeof formData]);
+      if (errorMessage) {
+        newErrors[field] = errorMessage;
+      }
+    });
+
+    if (Object.keys(newErrors).length === 0) {
       try {
-      
-        await dispatch(kycSubmits(formData))
-       
-    
+        await dispatch(kycSubmits(formData));
       } catch (err) {
         console.log(err);
-        if (err instanceof z.ZodError) {
-          const newErrors: { [key: string]: string } = {};
-          err.errors.forEach((error) => {
-            newErrors[error.path[0]] = error.message;
-          });
-          setErrors(newErrors);
-         
-        }
+      }
+    } else {
+      setErrors(newErrors);
     }
   };
 
@@ -123,11 +119,10 @@ const Home: React.FC = () => {
       setShowForm(false);
     } else {
       dispatch(reset());
-      apiserviceMethood.logout("/logout")
-      navigate('/');
+      apiserviceMethood.logout("/logout");
+      navigate("/");
     }
   };
-  console.log("is",isKycSubmit)
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
@@ -150,7 +145,7 @@ const Home: React.FC = () => {
         )}
         {isKycSubmit === "Approved" && (
           <div className="text-center text-green-500 font-medium">
-            Your KYC is Approved 
+            Your KYC is Approved
           </div>
         )}
 
@@ -170,7 +165,7 @@ const Home: React.FC = () => {
               value={formData.fullName}
               onChange={handleChange}
               hasError={!!errors.fullName}
-              errorMessage={errors.fullName || "Full name is required."}
+              errorMessage={errors.fullName}
             />
             <div className="mt-4">
               <InputField
@@ -179,10 +174,10 @@ const Home: React.FC = () => {
                 name="idNumber"
                 type="number"
                 placeholder="Enter your Voter ID number"
-                value={formData.idNumber }
+                value={formData.idNumber}
                 onChange={handleChange}
                 hasError={!!errors.idNumber}
-                errorMessage={errors.idNumber || "ID number is required."}
+                errorMessage={errors.idNumber}
               />
             </div>
             <div className="mt-4">
@@ -194,23 +189,25 @@ const Home: React.FC = () => {
                 placeholder="Enter full name as per Aadhaar"
                 value={formData.aadhaarName}
                 onChange={handleChange}
-                hasError={!!errors.aadhaarName}  
-                errorMessage={errors.aadhaarName|| "Aadhaar name is required."}
+                hasError={!!errors.aadhaarName}
+                errorMessage={errors.aadhaarName}
               />
             </div>
             <div className="mt-4">
-             <label htmlFor="aadhaar" className="block text-sm font-medium text-gray-700">
-              Upload Aadhaar or License (JPG/PNG only)
-               </label>
-               <input
-               id="aadhaar"
-               type="file"
-               accept=".png, .jpg, .jpeg"
-               onChange={handleFileChange}
-               className={`mt-1 block w-full text-sm ${errors.aadhaar ? 'text-red-500' : 'text-gray-500'}`}
-               />
+              <label htmlFor="aadhaar" className="block text-sm font-medium text-gray-700">
+                Upload Aadhaar  (JPG/PNG only)
+              </label>
+              <input
+                id="aadhaar"
+                type="file"
+                accept=".png, .jpg, .jpeg"
+                onChange={handleFileChange}
+                className={`mt-1 block w-full text-sm ${
+                  errors.aadhaar ? "text-red-500" : "text-gray-500"
+                }`}
+              />
               {errors.aadhaar && <p className="mt-2 text-sm text-red-600">{errors.aadhaar}</p>}
-               </div>
+            </div>
             <div className="mt-6">
               <Button type="submit" label="Submit KYC" />
             </div>
@@ -220,7 +217,7 @@ const Home: React.FC = () => {
         <div className="mt-4">
           <Button
             type="button"
-            label={showForm ? 'Back' : 'Logout'}
+            label={showForm ? "Back" : "Logout"}
             onClick={handleLogout}
           />
         </div>

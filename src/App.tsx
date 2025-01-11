@@ -3,7 +3,7 @@ import Router from './router/Router'
 import { Provider } from 'react-redux'
 import  store,{persistor} from "./store/Configure"
 import {PersistGate} from "redux-persist/integration/react"
-import toast, { Toaster } from "react-hot-toast";
+import  { Toaster } from "react-hot-toast";
 const App:React.FC=() =>{
   return (
     <div>

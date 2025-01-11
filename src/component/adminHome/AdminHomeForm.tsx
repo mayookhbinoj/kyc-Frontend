@@ -21,26 +21,25 @@ const AdminHomeForm: React.FC = () => {
             title: `Are you sure you want to ${newStatus.toLowerCase()} this request?`,
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: newStatus === 'Approved' ? '#28a745' : '#dc3545', 
+            confirmButtonColor: newStatus === 'Approved' ? '#28a745' : '#dc3545',
             cancelButtonColor: '#6c757d',
             confirmButtonText: `Yes, ${newStatus}`,
-          }).then((result) => {
+        }).then((result) => {
             if (result.isConfirmed) {
-              if (newStatus === 'Approved') {
-                dispatch(kycsucess(id));
-                Swal.fire('Approved!', 'The KYC request has been approved.', 'success');
-              } else if (newStatus === 'Rejected') {
-                dispatch(kycReject(id));
-                Swal.fire('Rejected!', 'The KYC request has been rejected.', 'error');
-              }
+                if (newStatus === 'Approved') {
+                    dispatch(kycsucess(id));
+                    Swal.fire('Approved!', 'The KYC request has been approved.', 'success');
+                } else if (newStatus === 'Rejected') {
+                    dispatch(kycReject(id));
+                    Swal.fire('Rejected!', 'The KYC request has been rejected.', 'error');
+                }
             }
-          });
+        });
     };
 
     const handleLogout = () => {
-        console.log("enterrr")
         dispatch(reset());
-        adminService.logout("/logout")
+        adminService.logout("/logout");
         navigate('/');
     };
 
@@ -114,7 +113,7 @@ const AdminHomeForm: React.FC = () => {
                         <th className="py-4 px-6 text-left text-sm font-medium text-gray-600">Full Name</th>
                         <th className="py-4 px-6 text-left text-sm font-medium text-gray-600">Aadhaar Name</th>
                         <th className="py-4 px-6 text-left text-sm font-medium text-gray-600">Status</th>
-                        <th className="py-4 px-6 text-left text-sm font-medium text-gray-600">Email</th>                    
+                        <th className="py-4 px-6 text-left text-sm font-medium text-gray-600">Email</th>
                         <th className="py-4 px-6 text-left text-sm font-medium text-gray-600">View Image</th>
                         <th className="py-4 px-6 text-left text-sm font-medium text-gray-600">Actions</th>
                     </tr>
@@ -138,7 +137,7 @@ const AdminHomeForm: React.FC = () => {
                                     <div></div>
                                 ) : (
                                     <>
-                                        {user.kycDetails?.status === "pending" ||user.kycDetails?.status === "Rejected" && (
+                                        {(user.kycDetails?.status === "pending" || user.kycDetails?.status === "Rejected") && (
                                             <Button
                                                 type="button"
                                                 label="Approve"
