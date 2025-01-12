@@ -17,38 +17,26 @@ npm: npm should be available as the package manager. Alternatively, you can use 
 Installation Steps
 Clone the Repository: First, clone the repository to your local machine using the following command:
 
-bash
-Copy code
+
 git clone <repository-url>
 cd frontend
-Install Dependencies: Install the necessary dependencies via npm or yarn:
 
-bash
-Copy code
+
+
 npm install
-Or, using yarn:
 
-bash
-Copy code
-yarn install
+
+
+
 Development Server: After installation, run the following command to start the development server:
 
-bash
-Copy code
+
 npm run dev
-The application will be available at http://localhost:3000.
+
+The application will be available at http://localhost:5173.
 
 Build for Production: To create a production-ready build of the application, use:
 
-bash
-Copy code
-npm run build
-Preview the Production Build: To preview the production build, use the following:
-
-bash
-Copy code
-npm run preview
-Assumptions and Trade-offs
 Assumptions:
 Global State Management: The decision to use Redux Toolkit with redux-persist was made to ensure that the application’s state can be managed efficiently and remains persistent across page reloads.
 TypeScript: TypeScript is used to provide static typing, which improves the maintainability and scalability of the codebase, especially in larger applications. It also ensures better tooling support during development.
