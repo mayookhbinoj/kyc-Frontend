@@ -1,6 +1,6 @@
 import axios from "axios";
 import { kycSubmit, LoginFormData } from "../Interfaces/forms";    
-const API_URL ='https://vercel.com/mayookhs-projects/kyc-backend/api/user'
+const API_URL ='https://kyc-backend-lblx.vercel.app/api/user'
 axios.defaults.withCredentials=true
 const apiservice=axios.create({
     baseURL:API_URL,
