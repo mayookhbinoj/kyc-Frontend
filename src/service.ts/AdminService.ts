@@ -1,5 +1,5 @@
 import axios from "axios";
-const API_URL ='https://kyc-backend-lblx.vercel.app/api/admin'
+const API_URL ='https://kyc-backend-jade.vercel.app/api/admin'
 axios.defaults.withCredentials=true
 const apiservice=axios.create({
     baseURL:API_URL,
